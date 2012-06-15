@@ -24,6 +24,7 @@ ECLIPSE_FLAGS=-G "Eclipse CDT4 - Unix Makefiles"
 
 EXECUTABLE=$(BIN_DIR)/qtool/qtool
 CONNECT_EXECUTABLE=$(BIN_DIR)/qtool/connect_tool
+DATA_EXECUTABLE=$(BIN_DIR)/qtool/data_tool
 
 CMAKE_DEBUG_CONFIG=-DCMAKE_BUILD_TYPE=debug
 CMAKE_RELEASE_CONFIG=-DCMAKE_BUILD_TYPE=release
@@ -33,6 +34,7 @@ MAKE_FLAGS=--no-print-directory
 OVERSEER_SERVER_TARGET=overseer_server
 QTOOL_TARGET=qtool
 CONNECT_TARGET=connect_tool
+DATA_TARGET=data_tool
 
 OVERSEER_SERVER_LIB=$(BIN_DIR)/qtool/overseer/liboverseer_server.so
 OVERSEER_DESTINATION_DIR=$(SRC_DIR)/overseer/austinvilla/ground_truth/lib/
@@ -46,6 +48,9 @@ build: $(GEN_MAKEFILE)
 
 build_connect: $(GEN_MAKEFILE)
 	       $(MAKE) $(MAKE_FLAGS) $(CONNECT_TARGET) -C $(BIN_DIR)
+
+build_data: $(GEN_MAKEFILE)
+		$(MAKE) $(MAKE_FLAGS) $(DATA_TARGET) -C $(BIN_DIR)
 
 $(GEN_MAKEFILE):
 	$(MKDIR) -p $(BIN_DIR); \
@@ -77,6 +82,9 @@ run: $(EXECUTABLE)
 
 connect: build_connect
 	    $(CONNECT_EXECUTABLE)
+
+data_tool: build_data
+	    $(DATA_EXECUTABLE)
 
 debug: 
 	$(MKDIR) -p $(BIN_DIR); \

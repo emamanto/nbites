@@ -48,6 +48,18 @@ set( connect_headers
   ConnectTool.h
 )
 
+########### DataTool Sources
+
+set( dataproc_srcs main_data.cpp
+  EmptyQTool.cpp
+  DataProcessingTool.cpp
+  )
+
+set( dataproc_headers
+  EmptyQTool.h
+  DataProcessingTool.h
+)
+
 include_directories(.
                     ${CMAKE_CURRENT_BINARY_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}/overseer #for the GroundTruth.pb.h
@@ -63,6 +75,8 @@ Qt4_wrap_ui(qtool_forms_headers ${qtool_forms})
 #Qr4_add_resources(qtool_resources_rcc ${qtool_resources})
 
 Qt4_wrap_cpp(connect_headers_moc ${connect_headers})
+
+Qt4_wrap_cpp(dataproc_headers_moc ${dataproc_headers})
 
 ######### Subdirectory compilation
 add_subdirectory( image )
@@ -104,6 +118,24 @@ target_link_libraries(
   image
   data
   viewer
+  remote
+  overseer_client
+  ${QT_LIBRARIES}
+  )
+
+######### DataTool executable
+
+add_executable( data_tool
+  ${dataproc_srcs}
+  ${dataproc_headers_moc} )
+
+target_link_libraries(
+  data_tool
+  image
+  data
+  viewer
+  vision_viewer
+  offline
   remote
   overseer_client
   ${QT_LIBRARIES}

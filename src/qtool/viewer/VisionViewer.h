@@ -15,6 +15,7 @@
 #include <QtGui>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <fstream>
 
 #include "man/memory/Memory.h"
 #include "man/vision/Vision.h"
@@ -23,7 +24,7 @@
 #include "image/ThresholdedImage.h"
 #include "image/BMPYUVImage.h"
 #include "image/VisualInfoImage.h"
-#include "data/RobotMemoryManager.h"
+#include "data/DataManager.h"
 #include "BMPImageViewerListener.h"
 #include "ChannelImageViewer.h"
 #include "MObjectViewer.h"
@@ -36,7 +37,7 @@ class VisionViewer : public QMainWindow {
     Q_OBJECT
 
 public:
-    VisionViewer(data::RobotMemoryManager::const_ptr memoryManager);
+    VisionViewer(data::DataManager::ptr memoryManager);
 
 signals:
     void imagesUpdated();
@@ -53,10 +54,11 @@ public slots:
     void setVisualLinesDebug(int state);
     void setVisualCornersDebug(int state);
     void pixelClicked(int x, int y, int brushSize, bool leftClick);
+    void iterate();
 
 private:
     std::vector<QDockWidget*> dockWidget;
-    data::RobotMemoryManager::const_ptr memoryManager;
+    data::DataManager::ptr memoryManager;
 
     image::ThresholdedImage* topVisionImage;
     image::ThresholdedImage* bottomVisionImage;
@@ -73,6 +75,8 @@ private:
     boost::shared_ptr<man::memory::proto::PRawImage> topRawImage;
     boost::shared_ptr<man::memory::proto::PRawImage> bottomRawImage;
     man::corpus::OfflineImageTranscriber::ptr imageTranscribe;
+
+    std::ofstream output;
 };
 
 }

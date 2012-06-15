@@ -56,12 +56,13 @@ message PVision {
     	optional uint32 secondary_shape = 4;
     	optional float angle_between_lines = 5;
     	optional float orientation = 6;
+	optional float physical_orientation = 7;
     }
 
     message PVisualFieldObject {
     
 	required PVisualDetection visual_detection = 1;
-	required PVisualLandmark visual_landmark = 2;
+	optional PVisualLandmark visual_landmark = 2;
 	optional sint32 left_top_x = 3;
 	optional sint32 left_top_y = 4;
 	optional sint32 right_top_x = 5;

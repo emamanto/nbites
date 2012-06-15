@@ -51,6 +51,10 @@ public slots:
         parsingBoard.rewindAll();
     }
 
+    void getNext(std::string name) {
+        parsingBoard.parseNext(name);
+    }
+
     void newInputProvider(common::io::InProvider::ptr newInput, std::string name);
     void reset();
 
