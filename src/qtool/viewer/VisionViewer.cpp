@@ -21,9 +21,8 @@ VisionViewer::VisionViewer(DataManager::ptr memoryManager) :
                  sensors(new Sensors(speech)),
                  bottomRawImage(new proto::PRawImage()),
                  topRawImage(new proto::PRawImage()),
-                 output("data.out")
+                 output()
 {
-
     offlineMVision = MVision::ptr(new MVision());
 
     pose = shared_ptr<NaoPose> (new NaoPose(sensors));
@@ -157,55 +156,81 @@ VisionViewer::VisionViewer(DataManager::ptr memoryManager) :
 
     // Make sure one of the images is toggled off for small screens
     bottomCIV->toggle();
+}
 
-    memoryManager->connectSlot(this, SLOT(iterate()), "MRawImages");
+void VisionViewer::collectData()
+{
+    QString path = QFileDialog::getSaveFileName(this, "Choose Output File",
+                                                QString(NBITES_DIR) +
+                                                "/data");
+    if (!path.isEmpty()) {
+        output.open(path.toStdString().c_str());
+        memoryManager->connectSlot(this, SLOT(iterate()), "MRawImages");
+        memoryManager->getNext("MRawImages");
+    }
 }
 
 void VisionViewer::iterate()
 {
-    float leftDistance = offlineMVision->get()->
-        yglp().visual_detection().distance();
-    float rightDistance = offlineMVision->get()->
-        ygrp().visual_detection().distance();
+    output << "BALL " << offlineMVision->get()->visual_ball().heat() << " "
+           << offlineMVision->get()->visual_ball().visual_detection().distance()
+           << " " << offlineMVision->get()->visual_ball().visual_detection().bearing()
+           << " " << offlineMVision->get()->timestamp() << std::endl;
 
-    float leftBearing = offlineMVision->get()->
-        yglp().visual_detection().bearing();
-    float rightBearing = offlineMVision->get()->
-        ygrp().visual_detection().bearing();
+    output << "RED " << 0 << " "
+           << offlineMVision->get()->red1().visual_detection().distance()
+           << " " << offlineMVision->get()->red1().visual_detection().bearing()
+           <<  " " << offlineMVision->get()->timestamp() << std::endl;
 
-    if (leftDistance !=  0.0 && leftDistance < 400.0 && leftBearing > 0.0)
-        output << "LEFT POST " << leftDistance << " " <<
-            leftBearing << " 0 0" << std::endl;
+    output << "BLUE " << 0 << " "
+           << offlineMVision->get()->navy1().visual_detection().distance() <<
+        " " << offlineMVision->get()->navy1().visual_detection().bearing()
+           <<  " " << offlineMVision->get()->timestamp() << std::endl;
 
-    if (rightDistance !=  0.0 && rightDistance < 400.0 && rightBearing < 0.0)
-        output << "RIGHT POST " << rightDistance << " " <<
-            rightBearing << " 0 0" << std::endl;
+    // For goalie posts and corners:
+    // float leftDistance = offlineMVision->get()->
+    //     yglp().visual_detection().distance();
+    // float rightDistance = offlineMVision->get()->
+    //     ygrp().visual_detection().distance();
 
-    const RepeatedPtrField<PVision::PVisualCorner> cornersData =
-        offlineMVision->get()->visual_corner();
+    // float leftBearing = offlineMVision->get()->
+    //     yglp().visual_detection().bearing();
+    // float rightBearing = offlineMVision->get()->
+    //     ygrp().visual_detection().bearing();
 
-    for(int i = 0; i < cornersData.size(); i++)
-    {
-        const PVision::PVisualDetection corner =
-            cornersData.Get(i).visual_detection();
-        const PVision::PVisualCorner cor =
-            cornersData.Get(i);
+    // if (leftDistance !=  0.0 && leftDistance < 400.0 && leftBearing > 0.0)
+    //     output << "LEFT POST " << leftDistance << " " <<
+    //         leftBearing << " 0 0" << std::endl;
 
-        if (cor.corner_type() == 1)
-        {
-            if (corner.bearing() > 0.0)
-                output << "LEFT CORNER ";
-            if (corner.bearing() < 0.0)
-                output << "RIGHT CORNER ";
+    // if (rightDistance !=  0.0 && rightDistance < 400.0 && rightBearing < 0.0)
+    //     output << "RIGHT POST " << rightDistance << " " <<
+    //         rightBearing << " 0 0" << std::endl;
 
-            output << corner.distance() << " " <<
-                    corner.bearing() << " " <<
-                    cor.physical_orientation() << " " <<
-                    cor.orientation() << std::endl;
-        }
-    }
+    // const RepeatedPtrField<PVision::PVisualCorner> cornersData =
+    //     offlineMVision->get()->visual_corner();
 
-    output << "\n";
+    // for(int i = 0; i < cornersData.size(); i++)
+    // {
+    //     const PVision::PVisualDetection corner =
+    //         cornersData.Get(i).visual_detection();
+    //     const PVision::PVisualCorner cor =
+    //         cornersData.Get(i);
+
+    //     if (cor.corner_type() == 1)
+    //     {
+    //         if (corner.bearing() > 0.0)
+    //             output << "LEFT CORNER ";
+    //         if (corner.bearing() < 0.0)
+    //             output << "RIGHT CORNER ";
+
+    //         output << corner.distance() << " " <<
+    //                 corner.bearing() << " " <<
+    //                 cor.physical_orientation() << " " <<
+    //                 cor.orientation() << std::endl;
+    //     }
+    //}
+
+    // output << "\n";
 
     memoryManager->getNext("MRawImages");
 }

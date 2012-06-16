@@ -54,6 +54,9 @@ public slots:
     void setVisualLinesDebug(int state);
     void setVisualCornersDebug(int state);
     void pixelClicked(int x, int y, int brushSize, bool leftClick);
+    void collectData();
+
+private slots:
     void iterate();
 
 private:

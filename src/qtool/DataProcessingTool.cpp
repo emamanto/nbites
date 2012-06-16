@@ -10,7 +10,7 @@ DataProcessingTool::DataProcessingTool() : EmptyQTool("Data Tool"),
                              visionViewer(new VisionViewer(dataManager))
 {
     start = new QPushButton(tr("Start"));
-    connect(start, SIGNAL(clicked()), visionViewer, SLOT(iterate()));
+    connect(start, SIGNAL(clicked()), visionViewer, SLOT(collectData()));
 
     toolTabs->addTab(dataLoader, tr("Data Loader"));
     toolTabs->addTab(visionViewer, tr("Vision"));
