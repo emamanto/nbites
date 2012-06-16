@@ -37,6 +37,7 @@ message PVision {
 	required PVisualDetection visual_detection = 1;
         optional float radius = 2;
         optional sint32 confidence = 3;
+	optional float heat = 4;
 
     }
 

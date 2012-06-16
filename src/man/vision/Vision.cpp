@@ -315,6 +315,7 @@ void Vision::updateMVision(man::memory::MVision::ptr mVision) const {
     //VisualBall::stuff
     visual_ball->set_radius(this->ball->getRadius());
     visual_ball->set_confidence(this->ball->getConfidence());
+    visual_ball->set_heat(this->ball->getHeat());
 
     PVision::PVisualFieldObject* yglp;
     yglp = mVision->get()->mutable_yglp();
