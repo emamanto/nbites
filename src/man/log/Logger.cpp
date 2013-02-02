@@ -1,47 +1,22 @@
 #include "Logger.h"
-#include <iostream>
 #include <string.h>
 #include <errno.h>
 
 namespace man{
 namespace log{
 
-Logger::Logger(std::string name) : Thread(name),
+LoggerBase::LoggerBase(std::string name) : Thread(name),
                                    file_name(PATH + name)
 {
     memset(&control_block, 0, sizeof(control_block));
 }
 
-Logger::~Logger() {
+LoggerBase::~LoggerBase() {
     this->stop();
     this->waitForThreadToFinish();
 }
 
-void Logger::run() {
-    while (running) {
-        if (!fileOpened()) {
-            try {
-                openCommunicationChannel();
-            } catch (io_exception& io_exception) {
-                std::cout << file_name << ": " << io_exception.what() << " ";
-                return;
-            }
-            std::cout << "Writing header to " << file_name << std::endl;
-            this->writeHeader();
-        }
-        this->waitForSignal();
-        this->writeToLog();
-        this->waitForWriteToFinish();
-    }
-}
-
-void Logger::writeHeader() {
-}
-
-void Logger::writeToLog() {
-}
-
-void Logger::openCommunicationChannel() throw (file_exception) {
+void LoggerBase::openCommunicationChannel() throw (file_exception) {
 
     file_descriptor = open(file_name.c_str(), NEW, PERMISSIONS_ALL);
 
@@ -52,21 +27,21 @@ void Logger::openCommunicationChannel() throw (file_exception) {
     is_open = true;
 }
 
-bool Logger::fileOpened() const {
+bool LoggerBase::fileOpened() const {
     return is_open;
 }
 
-void Logger::closeCommunicationChannel() {
+void LoggerBase::closeCommunicationChannel() {
     close(file_descriptor);
     file_descriptor = -1;
     is_open = false;
 }
 
-bool Logger::writingInProgress() const {
+bool LoggerBase::writingInProgress() const {
     return aio_error(&control_block) == EINPROGRESS;
 }
 
-void Logger::waitForWriteToFinish() throw (std::runtime_error) {
+void LoggerBase::waitForWriteToFinish() throw (std::runtime_error) {
 
     const struct aiocb* cblist[] = { &control_block };
     int result = aio_suspend(cblist, 1, NULL);
@@ -77,7 +52,7 @@ void Logger::waitForWriteToFinish() throw (std::runtime_error) {
 }
 
 //yields before the other write is done!
-void Logger::writeCharBuffer(const char* buffer, uint32_t size) {
+void LoggerBase::writeCharBuffer(const char* buffer, uint32_t size) {
     if (!fileOpened()) {
         std::cout<<"Cannot write to an unopened channel!" << std::endl;
         return;

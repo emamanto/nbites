@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RoboGrams.h"
+#include "Logger.h"
 #include <string>
 #include <fstream>
 #include <vector>
@@ -15,16 +16,14 @@ public:
 	virtual ~LogModule();
 
     template<class T>
-    void addLogger(portals::OutPortal<T>*, std::string name);
+    void addLogger(portals::OutPortal<T>* port, std::string name)
+    {
+    }
 
 protected:
     void run_();
+    std::vector<LoggerBase> logs;
 };
-
-template<class T>
-void LogModule::addLogger(portals::OutPortal<T>*, std::string name)
-{
-}
 
 }
 }

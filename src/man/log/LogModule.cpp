@@ -17,6 +17,10 @@ LogModule::~LogModule()
 
 void LogModule::run_()
 {
+    for(vector<LoggerBase>::iterator i = logs.begin(); i != logs.end(); i++)
+    {
+        i->signalToResume();
+    }
 }
 
 }

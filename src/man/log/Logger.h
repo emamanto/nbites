@@ -9,13 +9,14 @@
 #include <aio.h>
 #include <stdint.h>
 #include <stdexcept>
+#include <iostream>
 
 namespace man {
 namespace log {
 
 static const std::string PATH = "/home/nao/nbites/frames";
 
-class Logger : public synchro::Thread {
+class LoggerBase : public synchro::Thread {
 
     enum OpenFlags {
         //O_APPEND is crucial if you want to use aio_write on the file
@@ -29,13 +30,12 @@ class Logger : public synchro::Thread {
     };
 
 public:
-    Logger(std::string name);
+    LoggerBase(std::string name);
+    virtual ~LoggerBase();
 
-    virtual ~Logger();
-
-    void writeToLog();
-    void writeHeader();
-    void run();
+    virtual void writeToLog() = 0;
+    virtual void writeHeader() = 0;
+    virtual void run() = 0;
     void openCommunicationChannel() throw (file_exception);
     bool fileOpened() const;
     void closeCommunicationChannel();
@@ -43,12 +43,63 @@ public:
     void waitForWriteToFinish() throw (std::runtime_error);
     void writeCharBuffer(const char* buffer, uint32_t size);
 
-private:
+    template <class T>
+    void writeValue(const T &value) {
+        writeCharBuffer(reinterpret_cast<const char *>(&value), sizeof(value));
+    }
+
+protected:
     std::string file_name;
     struct aiocb control_block;
     bool is_open;
-    std::string write_buffer;
     int file_descriptor;
+};
+
+template<class T>
+class Logger : public LoggerBase {
+public:
+    Logger(portals::OutPortal<T>* out, std::string name) : LoggerBase(name)
+    {
+        input.wireTo(out);
+    }
+
+    void writeToLog()
+    {
+        input.latch();
+        input.message().SerializeToString(&write_buffer);
+        writeValue<uint32_t>(sizeof(write_buffer));
+        writeCharBuffer(write_buffer.data(), write_buffer.size());
+    }
+
+    void writeHeader()
+    {
+        write_buffer = "NBITES " + name + " LOG VERSION 1.0 ";
+        writeCharBuffer(write_buffer.data(), write_buffer.size());
+    }
+
+
+    void run()
+    {
+        while (running) {
+            if (!fileOpened()) {
+                try {
+                    openCommunicationChannel();
+                } catch (io_exception& io_exception) {
+                    std::cout << io_exception.what() << std::endl;
+                    return;
+                }
+                std::cout << "Writing header to " << file_name << std::endl;
+                this->writeHeader();
+            }
+            this->waitForSignal();
+            this->writeToLog();
+            this->waitForWriteToFinish();
+        }
+    }
+
+protected:
+    portals::InPortal<T> input;
+    std::string write_buffer;
 };
 
 }
