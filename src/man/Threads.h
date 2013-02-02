@@ -18,7 +18,6 @@ private:
     portals::RoboGram cognitionDiagram;
 
     // Modules:
-    image::ImageTranscriberModule imageTranscriber;
     log::LogModule logger;
 };
 

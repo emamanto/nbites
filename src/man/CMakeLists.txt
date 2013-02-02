@@ -45,9 +45,6 @@ add_subdirectory( ../messages ${CMAKE_CURRENT_BINARY_DIR}/messages/ )
 # And make sure generated pb.h files are visible
 include_directories( ${CMAKE_CURRENT_BINARY_DIR}/messages/ )
 
-# Build the sensors module.
-add_subdirectory( sensors )
-
 add_library(
   man
   SHARED
