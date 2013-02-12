@@ -59,7 +59,6 @@ target_link_libraries(
   man
   portals
   messages
-  sensors
 )
 
 install( TARGETS man
