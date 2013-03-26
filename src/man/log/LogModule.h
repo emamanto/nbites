@@ -14,6 +14,9 @@
  * for a good explanation of what this means. This is why you will see
  * all of the aio calls rather than simple writes.
  *
+ * Note that log files are written HEADER | SIZE | MSG | SIZE | MSG ...
+ * where each SIZE gives the number of bytes in the next MSG.
+ *
  * @author Lizzie Mamantov
  * @date February 2013
  * @author Octavian Neamtu
@@ -24,7 +27,8 @@
 #pragma once
 
 #include "RoboGrams.h"
-#include "IOExceptions.h"
+#include "LogDefinitions.h"
+#include "DebugConfig.h"
 #include <aio.h>
 #include <errno.h>
 #include <stdint.h>
@@ -36,15 +40,14 @@ namespace log {
 
 // The filepath on the robot where logs will end up
 static const std::string PATH = "/home/nao/nbites/log/";
-// Log version--in case we need to upgrade and stay backwards compatible
-static const std::string VERSION = "2.0";
-// Header. This could be updated with more useful information.
-static const std::string HEADER = "NORTHERN BITES LOG FILE VERSION " + VERSION;
 
 // Flags needed to open files appropriately
 static const int NEW_FLAG = O_WRONLY | O_CREAT | O_TRUNC | O_APPEND;
 static const int ALL_PERMISSIONS = S_IRWXU | S_IRWXG | S_IRWXO;
 
+// Default value for write list size; can be reset--should be small
+// for large messages that could take up a lot of memory!
+static const int DEFAULT_MAX_WRITES = 10;
 
 /*
  * This struct is used to hold together an aiocb (control block) and the
@@ -66,6 +69,10 @@ public:
     LogBase(std::string name);
     virtual ~LogBase();
 
+    // For controlling the max size of write list
+    int getMaxWrites() { return maxWrites; }
+    void setMaxWrites(int max) { maxWrites = max; }
+
 protected:
     // Note that inheriting classes still need to implement this!
     virtual void run_() = 0;
@@ -82,46 +89,44 @@ protected:
         writeCharBuffer(reinterpret_cast<const char *>(&value), sizeof(value));
     }
 
-    // Keeps track of all writes that haven't finished yet
-    std::list<Write> ongoing;
-    // Has the file been opened?
-    bool fileOpen;
-    // The file that we've opened/are writing to
-    int fileDescriptor;
-    // The full path of the file
-    std::string fileName;
-};
-
-// Template Class
-template<class T>
-class LogModule : public LogBase {
-public:
-    /*
-     * @brief Takes an OutPortal and wires it to this new module so that
-     *        we can log its output.
-     */
-    LogModule(portals::OutPortal<T>* out, std::string name) : LogBase(name)
-    {
-        input.wireTo(out);
-    }
-
-    /*
-     * @brief Serializes a message and writes the message's size and
-     *        serialization to the file. Note: relies on protobuf methods
-     *        like SerializeToString. If you ever want this class to log
-     *        something that is not a protobuf, make sure it has these
-     *        methods and can pretend to be one, or specialize this template.
-     */
+    template<class T>
     void writeMessage(T msg)
     {
+        // Don't enqueue this write if we've hit the upper limit
+        if (ongoing.size() == maxWrites)
+        {
+#ifdef DEBUG_LOGGING
+        std::cout << "Dropped a message because there are already "
+                  << maxWrites << " ongoing writes to " << fileName
+                  << std::endl;
+#endif
+        return;
+        }
+
+
         // Add a new write to the list of current writes
         ongoing.push_back(Write());
         Write* current = &ongoing.back();
 
         // Serialize directly into the Write's buffer to avoid a copy
         msg.SerializeToString(&(current->buffer));
+
+        // Don't write if the file has gotten too huge
+        if (bytesWritten >= FILE_MAX_SIZE)
+        {
+#ifdef DEBUG_LOGGING
+            std::cout << "Dropped a message because the file "
+                      << fileName << " has reached " << bytesWritten << " bytes "
+                      << std::endl;
+#endif
+            ongoing.pop_back();
+            return;
+        }
+
+        bytesWritten += current->buffer.length();
+
         // Write ths size of the message that will be written
-        writeValue<uint32_t>(msg.ByteSize());
+        writeValue<uint32_t>(current->buffer.length());
 
         // Recommended by aio--zeroes the control block
         memset(&current->control, 0, sizeof(current->control));
@@ -141,13 +146,49 @@ public:
                      << std::endl;
         }
 
+#ifdef DEBUG_LOGGING
+        std::cout << "Enqueued a message for writing."
+                  << std::endl;
+#endif
     }
 
-    // Simply writes the header defined at the beginning of this file
+    // Keeps track of all writes that haven't finished yet
+    std::list<Write> ongoing;
+    // Has the file been opened?
+    bool fileOpen;
+    // The file that we've opened/are writing to
+    int fileDescriptor;
+    // The full path of the file
+    std::string fileName;
+    // Stores the maximum number of writes that should happen concurrently
+    unsigned int maxWrites;
+    // Stores how much we've written to this file to avoid huge files
+    unsigned int bytesWritten;
+};
+
+// Template Class
+template<class T>
+class LogModule : public LogBase {
+public:
+    /*
+     * @brief Takes an OutPortal and wires it to this new module so that
+     *        we can log its output.
+     */
+    LogModule(portals::OutPortal<T>* out, std::string name) : LogBase(name)
+    {
+        input.wireTo(out);
+    }
+
+    // Writes out a header protobuf
     void writeHeader()
     {
+        Header head;
+        head.set_name(input.message().GetTypeName());
+        head.set_version(CURRENT_VERSION);
+        head.set_timestamp(42);
+        writeMessage<Header>(head);
+
         std::cout << "Writing header to " << fileName << std::endl;
-        writeCharBuffer(HEADER.data(), HEADER.length());
     }
 
 protected:
@@ -171,7 +212,7 @@ protected:
         checkWrites();
 
         // Start a new write for the current message
-        writeMessage(input.message());
+        writeMessage<T>(input.message());
     }
 
     portals::InPortal<T> input;

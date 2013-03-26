@@ -1,6 +1,4 @@
 #include "ImageTranscriberModule.h"
-//#include "Profiler.h"
-
 #include <iostream>
 
 using namespace portals;
@@ -24,5 +22,6 @@ void ImageTranscriberModule::run_()
     topImageTranscriber.acquireImage();
     bottomImageTranscriber.acquireImage();
 }
+
 }
 }
