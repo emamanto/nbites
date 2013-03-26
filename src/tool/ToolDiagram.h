@@ -31,7 +31,7 @@ class ToolDiagram : public QObject
 public:
     ToolDiagram(QWidget *parent = 0);
 
-    void addModule(portals::Module& mod);
+    void addModule(portals::Module& mod) { diagram.addModule(mod); }
     bool unlogFrom(std::string path);
 
     unlog::view::LogViewer* getGUI() { return &viewTab; }

@@ -13,6 +13,7 @@
 
 #include "ToolDiagram.h"
 #include "DataSelector.h"
+#include "visionsim/VisionSimModule.h"
 
 namespace tool {
 
@@ -34,6 +35,7 @@ protected:
     DataSelector selector;
 
     // Modules
+    visionsim::VisionSimModule vissim;
 
     // GUI stuff
     QTabWidget* toolTabs;

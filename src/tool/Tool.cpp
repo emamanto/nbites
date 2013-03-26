@@ -14,6 +14,7 @@ Tool::Tool(const char* title) :
     QMainWindow(),
     diagram(),
     selector(),
+    vissim(),
     toolTabs(new QTabWidget),
     toolbar(new QToolBar),
     nextButton(new QPushButton(tr(">"))),
@@ -22,10 +23,11 @@ Tool::Tool(const char* title) :
     scrollArea(new QScrollArea),
     scrollBarSize(new QSize(5, 35)),
     tabStartSize(new QSize(toolTabs->size()))
-
 {
     // Set up the GUI and slots
     this->setWindowTitle(tr(title));
+
+    diagram.addModule(vissim);
 
     connect(nextButton, SIGNAL(clicked()), &diagram, SLOT(run()));
     connect(&selector, SIGNAL(signalNewDataSet(std::vector<std::string>)),
@@ -37,6 +39,7 @@ Tool::Tool(const char* title) :
 
     toolTabs->addTab(&selector, tr("Data"));
     toolTabs->addTab(diagram.getGUI(), tr("Log Viewer"));
+    toolTabs->addTab(&vissim.gui, tr("Vision Sim"));
 
     this->setCentralWidget(toolTabs);
     this->addToolBar(toolbar);
