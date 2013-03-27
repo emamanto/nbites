@@ -8,6 +8,7 @@ MemoryModule::MemoryModule() : portals::Module(),
 void MemoryModule::run_()
 {
     input.latch();
-    memory.addNewScene();
-    memory.end()->addObject(TemporalBall(input.message()));
+    Scene latest;
+    latest.addObject(TemporalBall(input.message()));
+    memory.addScene(latest);
 }

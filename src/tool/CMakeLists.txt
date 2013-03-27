@@ -4,6 +4,10 @@ cmake_minimum_required( VERSION 2.8.3 )
 
 # Make sure we can find the shared files
 set( SHARE_DIR "${NBITES_DIR}/src/share/" )
+# For including man directories offline
+set( MAN_DIR "${NBITES_DIR}/src/man/" )
+include_directories( ${MAN_DIR} )
+
 # So that we can use find_package commands
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SHARE_DIR}/cmake/" )
 mark_as_advanced( CMAKE_INSTALL_PREFIX )
@@ -44,6 +48,8 @@ include_directories( ${SHARE_DIR}/portals )
 add_subdirectory( ${SHARE_DIR}/messages ${CMAKE_CURRENT_BINARY_DIR}/messages )
 include_directories(  ${CMAKE_CURRENT_BINARY_DIR}/messages )
 
+add_subdirectory( ${MAN_DIR}/vssp ${CMAKE_CURRENT_BINARY_DIR}/vssp)
+
 # If protobuf libs don't exist yet, make sure they build before man
 if( BUILD_PROTOBUF )
 add_dependencies(messages protobuf_libs)
@@ -80,5 +86,6 @@ target_link_libraries(
   messages
   unlog
   visionsim
+  vssp
   ${QT_LIBRARIES}
   )

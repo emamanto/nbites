@@ -26,7 +26,7 @@ class SceneBuffer
 {
 public:
     explicit SceneBuffer(int capacity) : cb(capacity),
-                                         framecount(1) {};
+                                         framecount(0) {};
 
     bool addScene(Scene scene);
     bool addNewScene();

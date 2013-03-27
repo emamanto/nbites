@@ -14,6 +14,7 @@
 #include "ToolDiagram.h"
 #include "DataSelector.h"
 #include "visionsim/VisionSimModule.h"
+#include "vssp/MemoryModule.h"
 
 namespace tool {
 
@@ -23,6 +24,9 @@ class Tool : public QMainWindow {
 public:
     Tool(const char* title = "TOOL");
     ~Tool();
+
+public slots:
+    void setUpModules();
 
 protected:
     // For keyboard control
@@ -36,6 +40,7 @@ protected:
 
     // Modules
     visionsim::VisionSimModule vissim;
+    MemoryModule vismemory;
 
     // GUI stuff
     QTabWidget* toolTabs;

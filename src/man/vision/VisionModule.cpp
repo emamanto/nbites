@@ -69,7 +69,8 @@ void VisionModule::updateVisionBall() {
     ball_data.get()->set_heat(vision->ball->getHeat());
     ball_data.get()->set_on(vision->ball->isOn());
     ball_data.get()->set_confidence(vision->ball->getConfidence());
-
+    ball_data.get()->set_visual_x(vision->ball->getCenterX());
+    ball_data.get()->set_visual_y(vision->ball->getCenterY());
 
     vision_ball.setMessage(ball_data);
 

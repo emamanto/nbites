@@ -45,10 +45,19 @@ public:
         {
             if(test.GetTypeName() == (*i)->getType())
             {
-                input.wireTo(dynamic_cast<unlog::UnlogModule<T> >(*i).output);
+                unlog::UnlogModule<T>* typed =
+                    dynamic_cast<unlog::UnlogModule<T>* >(*i);
+                input.wireTo(&typed->output);
+                return;
             }
         }
+
+        std::cout << "Warning: no unlogger of type " << test.GetTypeName()
+                  << " was found." << std::endl;
     }
+
+signals:
+    void readyForModules();
 
 public slots:
     void run() { diagram.run(); }

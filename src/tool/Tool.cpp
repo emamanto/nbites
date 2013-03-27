@@ -15,6 +15,7 @@ Tool::Tool(const char* title) :
     diagram(),
     selector(),
     vissim(),
+    vismemory(),
     toolTabs(new QTabWidget),
     toolbar(new QToolBar),
     nextButton(new QPushButton(tr(">"))),
@@ -27,11 +28,12 @@ Tool::Tool(const char* title) :
     // Set up the GUI and slots
     this->setWindowTitle(tr(title));
 
-    diagram.addModule(vissim);
-
     connect(nextButton, SIGNAL(clicked()), &diagram, SLOT(run()));
     connect(&selector, SIGNAL(signalNewDataSet(std::vector<std::string>)),
             &diagram, SLOT(addUnloggers(std::vector<std::string>)));
+
+    connect(&diagram, SIGNAL(readyForModules()),
+            this, SLOT(setUpModules()));
 
     toolbar->addWidget(prevButton);
     toolbar->addWidget(nextButton);
@@ -67,6 +69,12 @@ Tool::~Tool() {
             << this->width() << "\n"
             << this->height() << "\n";
     }
+}
+
+void Tool::setUpModules()
+{
+    diagram.addModule(vismemory);
+    diagram.connectToUnlogger<messages::VisionBall>(vismemory.input);
 }
 
 // Keyboard control
