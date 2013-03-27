@@ -1,27 +1,22 @@
 #include "Scenes.h"
 #include <iostream>
 
-using man::memory::proto::PVision;
-
-Scene::Scene(PVision input, int frame) : framestamp(frame)
+void Scene::addObject(TemporalObject obj)
 {
-    // Make objects from the protobuf and put them into the multimap here
-    TemporalObject theBall("ball",
-                           input.visual_ball().visual_detection().x(),
-                           input.visual_ball().visual_detection().y(),
-                           input.visual_ball().visual_detection().distance(),
-                           input.visual_ball().visual_detection().bearing(),
-                           this,
-                           NULL,
-                           NULL);
-    objects.insert( std::pair<std::string, TemporalObject>(theBall.type(),
-                                                           theBall));
+    obj.setScene(this);
+    objects.insert(std::pair<std::string, TemporalObject>(obj.type(), obj));
 }
 
-void SceneBuffer::printInfo()
+bool SceneBuffer::addScene(Scene scene)
 {
-    std::cout << "The buffer has capacity " << cb.capacity() <<
-        "\nThe buffer has size " << cb.size() << std::endl;
+    bool replacement = cb.full() ? true : false;
+    framecount++;
+    scene.setStamp(framecount);
+    cb.push_back(scene);
+    return replacement;
 }
 
-
+bool SceneBuffer::addNewScene()
+{
+    return addScene(Scene());
+}

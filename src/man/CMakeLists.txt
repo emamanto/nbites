@@ -79,6 +79,7 @@ add_subdirectory( sensors )
 add_subdirectory( comm )
 add_subdirectory( guardian )
 add_subdirectory( audio )
+add_subdirectory( vssp )
 
 set( MAN_SRCS main.cpp
   Man.cpp
