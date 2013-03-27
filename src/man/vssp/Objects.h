@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "VisionBall.pb.h"
 
 class Scene;
 
@@ -9,7 +10,7 @@ class TemporalObject
 {
 public:
     TemporalObject(std::string type);
-    TemporalObject(std::string type, int x_, int y_, int dist_, int bear_);
+    TemporalObject(std::string type, int x_, int y_, float dist_, float bear_);
 
     inline std::string type() { return objectType; }
     inline int x() { return visualX; }
@@ -20,9 +21,11 @@ public:
     Scene* getScene() { return scene; }
     void setScene(Scene* scene_) { scene = scene_; }
     TemporalObject* next() { return nextObject; }
+    void setNext(TemporalObject* next_) { nextObject = next_; }
     TemporalObject* previous() { return previousObject; }
+    void setPrevious(TemporalObject* prev_) { previousObject = prev_; }
 
-private:
+protected:
     std::string objectType;
     int visualX;
     int visualY;
@@ -32,4 +35,22 @@ private:
     Scene* scene;
     TemporalObject* previousObject;
     TemporalObject* nextObject;
+};
+
+class TemporalBall : public TemporalObject
+{
+public:
+    TemporalBall(const messages::VisionBall& vis);
+
+    TemporalBall* next() { return nextObject; }
+    void setNext(TemporalBall* next_) { nextObject = next_; }
+    TemporalBall* previous() { return previousObject; }
+    void setPrevious(TemporalBall* prev_) { previousObject = prev_; }
+
+private:
+    int visualRadius;
+    int confidence;
+
+    TemporalBall* previousObject;
+    TemporalBall* nextObject;
 };

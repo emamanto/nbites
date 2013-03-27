@@ -25,7 +25,8 @@ typedef boost::circular_buffer<Scene>::iterator SceneIt;
 class SceneBuffer
 {
 public:
-    explicit SceneBuffer(int capacity) : cb(capacity) {};
+    explicit SceneBuffer(int capacity) : cb(capacity),
+                                         framecount(1) {};
 
     bool addScene(Scene scene);
     bool addNewScene();

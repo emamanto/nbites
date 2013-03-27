@@ -3,7 +3,6 @@ package messages;
 
 
 message VisionBall {
-
 	optional float distance = 1;
         optional float bearing = 2;
         optional float angle_x_deg = 3;
@@ -18,4 +17,6 @@ message VisionBall {
 	optional bool on = 12;
 	optional int32 frames_on = 13;
 	optional int32 frames_off = 14;
+	optional int32 visual_x = 15;
+	optional int32 visual_y = 16;
 }

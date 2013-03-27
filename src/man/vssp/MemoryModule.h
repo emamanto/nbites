@@ -1,36 +1,18 @@
 #pragma once
 
-#include "man/portals/RoboGrams.h"
+#include "RoboGrams.h"
 #include "Scenes.h"
+#include "VisionBall.pb.h"
 
-class MemoryModule : public Module
+class MemoryModule : public portals::Module
 {
 public:
-    MemoryModule() : Module(),
-                     input(),
-                     memory(5),
-                     counter(0)
-    {
-    }
+    MemoryModule();
 
-    InPortal<man::memory::proto::PVision> input;
+    portals::InPortal<messages::VisionBall> input;
 
 private:
-    virtual void run_()
-    {
-        input.latch();
-        //input.message().PrintDebugString();
-        memory.addScene(input.message(), counter);
-        memory.printInfo();
-        SceneIt it = memory.begin();
-        while (it != memory.end())
-        {
-            std::cout << (*it).stamp() << std::endl;
-            it++;
-        }
-        counter++;
-    }
+    virtual void run_();
 
     SceneBuffer memory;
-    int counter;
 };
