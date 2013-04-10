@@ -120,7 +120,7 @@ public:
     int x() { return center[X_VALUE]; }
     int y() { return center[Y_VALUE]; }
     // Visual radius of the ball
-    int getVisualRadius() { return visualRadius; }
+    int radius() { return visualRadius; }
     // Checks if the ball is behind the image plane; we don't want it to
     // back-project into the image if so
     bool behind() { return cameraCoordinates[Z_VALUE] < 0; }

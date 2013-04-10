@@ -24,4 +24,6 @@ message WorldModel
         optional int32 sub_role = 14;
 
         optional bool  active = 15;
+
+	optional float head_yaw = 16;
 }

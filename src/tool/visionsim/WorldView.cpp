@@ -3,7 +3,9 @@
  */
 
 #include "WorldView.h"
+#include "ImageConstants.h"
 #include <iostream>
+#include <math.h>
 
 namespace tool{
 namespace visionsim{
@@ -33,8 +35,14 @@ static const int ARROW_START = -1;
 static const int ARROW_WIDTH = 2;
 static const int ARROW_DEPTH = 3;
 
-WorldView::WorldView(World& state) : world(state)
+WorldView::WorldView(QWidget* parent) : QWidget(parent)
 {
+}
+
+void WorldView::run_()
+{
+    worldIn.latch();
+    repaint();
 }
 
 // The following two methods keep Qt from resizing this widget
@@ -133,7 +141,14 @@ void WorldView::paintEvent(QPaintEvent *event)
     painter.setPen(pen);
     painter.setBrush(orange);
 
-    painter.drawEllipse(world.ballX()-BALL_RAD, world.ballY()-BALL_RAD,
+    int ballX = worldIn.message().my_x() +
+        (worldIn.message().ball_dist() *
+         cos(worldIn.message().ball_bearing()*TO_RAD));
+    int ballY = worldIn.message().my_y() +
+        (worldIn.message().ball_dist() *
+         sin(worldIn.message().ball_bearing()*TO_RAD));
+
+    painter.drawEllipse(ballX-BALL_RAD, ballY-BALL_RAD,
                         2*BALL_RAD, 2*BALL_RAD);
 
 
@@ -145,8 +160,8 @@ void WorldView::paintEvent(QPaintEvent *event)
     // To get the right orientation for the robot ellipse, translates
     // coordinate system to center of the robot and rotates before
     // drawing
-    painter.translate(world.robotX(), world.robotY());
-    painter.rotate(-world.robotH());
+    painter.translate(worldIn.message().my_x(), worldIn.message().my_y());
+    painter.rotate(-worldIn.message().my_h());
     painter.drawEllipse(-(0.5*ROBOT_X_SIZE), -(0.5*ROBOT_Y_SIZE),
                         ROBOT_X_SIZE, ROBOT_Y_SIZE);
 

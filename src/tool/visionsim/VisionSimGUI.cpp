@@ -13,13 +13,16 @@ namespace visionsim{
  * @param world -- the world model, for the world viewer
  */
 
-VisionSimGUI::VisionSimGUI(Image& top, Image& bottom, World& world,
+VisionSimGUI::VisionSimGUI(ImageView& top,
+                           ImageView& bottom,
+                           WorldView& world,
+                           Controls& cont,
                            QWidget* parent) :
     QWidget(parent),
     topImageView(top),
     bottomImageView(bottom),
     worldView(world),
-    controls(this)
+    controls(cont)
 {
     // A widget to hold the two images in a nice layout
     QWidget* imagesView = new QWidget(this);
@@ -64,15 +67,6 @@ VisionSimGUI::VisionSimGUI(Image& top, Image& bottom, World& world,
     mainLayout->addWidget(imagesView);
     mainLayout->addWidget(worldControlView);
     this->setLayout(mainLayout);
-}
-
-// Has all of the different views repaint; gets called if the model is updated
-// and the views are showing out-of-date data
-void VisionSimGUI::updateView()
-{
-    topImageView.repaint();
-    bottomImageView.repaint();
-    worldView.repaint();
 }
 
 }

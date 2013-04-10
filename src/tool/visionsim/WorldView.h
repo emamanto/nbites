@@ -13,31 +13,32 @@
 #include <QWidget>
 #include <QPainter>
 #include <QPaintEvent>
-#include "World.h"
 #include "WorldConstants.h"
+#include "WorldModel.pb.h"
+#include "RoboGrams.h"
 
 namespace tool{
 namespace visionsim{
 
-class WorldView : public QWidget
+class WorldView : public QWidget,
+                  public portals::Module
 {
-
-Q_OBJECT
+    Q_OBJECT;
 
 public:
-    WorldView(World& state);
-    ~WorldView() {};
+    WorldView(QWidget* parent = 0);
+
+    portals::InPortal<messages::WorldModel> worldIn;
+
+protected:
+    virtual void run_();
 
     // Keeps the widget the right size
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-protected:
     // Handles all of the drawing
     void paintEvent(QPaintEvent* event);
-
-private:
-    World& world;
 };
 
 }

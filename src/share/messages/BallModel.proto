@@ -8,7 +8,7 @@ message VisionBall {
         optional float elevation_deg = 5;
         optional float distance_sd = 6;
         optional float bearing_sd = 7;
-	optional bool inTopCam = 8;
+	optional bool in_top_cam = 8;
 	optional float radius = 9;
 	optional int32 confidence = 10;
 	optional float heat = 11;

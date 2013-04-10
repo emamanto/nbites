@@ -12,36 +12,36 @@
 #pragma once
 
 #include <QSpinBox>
+#include "RoboGrams.h"
+#include "WorldModel.pb.h"
 
 namespace tool{
 namespace visionsim{
 
-class Controls : public QWidget {
-Q_OBJECT
+class Controls : public QWidget,
+                 public portals::Module
+{
+    Q_OBJECT;
 
 public:
     Controls(QWidget* parent = 0);
-    ~Controls() {};
+
+    portals::OutPortal<messages::WorldModel> worldOut;
 
 signals:
-    // Linked to the model classes that need to hear from the GUI
-    void robotMoved(float x, float y, float h);
-    void headMoved(float yaw, float pitch);
-    void ballMoved(float x, float y);
+    void dataChanged();
 
-private slots:
-    // Take care of sending information
-    void sendRobotInfo();
-    void sendHeadInfo();
-    void sendBallInfo();
+protected slots:
+    void signalToRun();
 
-private:
+protected:
+    virtual void run_();
+
     // The various spin boxes used to control values
     QSpinBox robotX;
     QSpinBox robotY;
     QSpinBox robotH;
     QSpinBox headYaw;
-    QSpinBox headPitch;
     QSpinBox ballX;
     QSpinBox ballY;
 };

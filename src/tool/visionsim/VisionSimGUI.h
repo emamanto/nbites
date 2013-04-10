@@ -17,27 +17,18 @@
 namespace tool{
 namespace visionsim{
 
-// Forward declaration for friending
-class VisionSimModule;
-
 class VisionSimGUI  : public QWidget {
     Q_OBJECT;
-    friend class VisionSimModule;
 
 public:
-    VisionSimGUI(Image& top, Image& bottom, World& world,
-                 QWidget* parent = 0);
-    ~VisionSimGUI() {};
-
-public slots:
-    // Tells the different viewers to update themselves
-    void updateView();
+    VisionSimGUI(ImageView& top, ImageView& bottom, WorldView& world,
+                 Controls& cont, QWidget* parent = 0);
 
 private:
-    ImageView topImageView;
-    ImageView bottomImageView;
-    WorldView worldView;
-    Controls controls;
+    ImageView& topImageView;
+    ImageView& bottomImageView;
+    WorldView& worldView;
+    Controls& controls;
 };
 
 }

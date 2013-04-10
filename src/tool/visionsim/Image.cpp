@@ -17,8 +17,9 @@ namespace visionsim{
  * @see ImageConstants.h for the enum
  */
 
-Image::Image(World& state, Camera which) : world(state),
-                                           type(which)
+Image::Image(Camera which) : type(which),
+                             ballOut(base())
+                             //fieldOut(base())
 {
     // Set up camera information
     if(type == TOP)
@@ -54,6 +55,55 @@ Image::Image(World& state, Camera which) : world(state),
 }
 
 /*
+ * The main update method for this class. Runs all of the methods that
+ * update specific parts, and is called by the model when something in the
+ * world changes.
+ */
+
+void Image::run_()
+{
+    worldIn.latch();
+
+    updateCorners();
+    updateLines();
+    updateBall();
+    updatePosts();
+
+    portals::Message<messages::VisionBall> ballmsg(0);
+    portals::Message<messages::VisionField> fieldmsg(0);
+
+    // Get these directly from world model right now
+    ballmsg.get()->set_distance(worldIn.message().ball_dist());
+    ballmsg.get()->set_bearing(worldIn.message().ball_bearing());
+
+    // Check if the ball is in the image, and not reflected from behind
+    bool ballOn = (isInImage(ImagePoint(ball.x(), ball.y())) &&
+                   !ball.behind());
+
+    ballmsg.get()->set_on(ballOn);
+    if (ballOn)
+    {
+        ballmsg.get()->set_frames_on(ballOut.getMessage(true).get()->
+                                     frames_on() + 1);
+        ballmsg.get()->set_frames_off(0);
+
+        ballmsg.get()->set_visual_x(ball.x());
+        ballmsg.get()->set_visual_x(ball.y());
+        ballmsg.get()->set_radius(ball.radius());
+
+        if (type == TOP) ballmsg.get()->set_in_top_cam(true);
+    }
+    else
+    {
+        ballmsg.get()->set_frames_off(ballOut.getMessage(true).get()->
+                                      frames_off() + 1);
+        ballmsg.get()->set_frames_on(0);
+    }
+
+    ballOut.setMessage(ballmsg);
+}
+
+/*
  * Used to get a VisionCorner out of the vector based on its concrete
  * FieldCorner.
  *
@@ -70,20 +120,6 @@ VisionCorner* Image::getCorner(FieldCorner type)
 
     std::cout << "WARNING: Invalid corner type requested." << std::endl;
     return &allCorners[0];
-}
-
-/*
- * The main update method for this class. Runs all of the methods that
- * update specific parts, and is called by the model when something in the
- * world changes.
- */
-
-void Image::update()
-{
-    updateCorners();
-    updateLines();
-    updateBall();
-    updatePosts();
 }
 
 /*
@@ -128,6 +164,20 @@ void Image::updateLines()
     }
 }
 
+
+Eigen::Vector3f Image::getAbsoluteBallCoords()
+{
+    Eigen::Vector3f ball;
+    ball[X_VALUE] = worldIn.message().my_x() +
+        (worldIn.message().ball_dist() *
+         cos(worldIn.message().ball_bearing()*TO_RAD));
+    ball[Y_VALUE] = worldIn.message().my_y() +
+        (worldIn.message().ball_dist() *
+         sin(worldIn.message().ball_bearing()*TO_RAD));
+    ball[Z_VALUE] = BALL_RADIUS;
+    return ball;
+}
+
 /*
  * Computes the ball's center point and visual radius based on its current
  * location.
@@ -136,9 +186,7 @@ void Image::updateLines()
 void Image::updateBall()
 {
     // Compute and store its 3D camera-frame coordinates
-    ball.cameraCoordinates = fieldToCameraCoords(world.ballX(),
-                                                 world.ballY(),
-                                                 world.ballZ());
+    ball.cameraCoordinates = fieldToCameraCoords(getAbsoluteBallCoords());
     // Project the center of the ball into the image
     ball.center = cameraToImageCoords(ball.cameraCoordinates);
 
@@ -228,15 +276,15 @@ CameraPoint Image::fieldToCameraCoords(int x, int y, int z)
     // on the field to the camera itself
     Matrix4f viewpoint;
     viewpoint <<
-        1, 0, 0, -world.robotX(),
-        0, 1, 0, -world.robotY(),
+        1, 0, 0, -(worldIn.message().my_x()),
+        0, 1, 0, -(worldIn.message().my_y()),
         0, 0, 1, -cameraHeight,
         0, 0, 0, 1;
 
     // Yaw matrix takes into account the robot moving its head side
     // to side
     Matrix4f yaw;
-    float yw = (world.headYaw() + world.robotH())*TO_RAD;
+    float yw = (worldIn.message().head_yaw() + worldIn.message().my_h())*TO_RAD;
     yaw <<
          cos(yw), -sin(yw), 0, 0,
          sin(yw),  cos(yw), 0, 0,
@@ -245,7 +293,7 @@ CameraPoint Image::fieldToCameraCoords(int x, int y, int z)
 
     // Pitch matrix takes into account the head's up/down motion
     Matrix4f pitch;
-    float p = (world.headPitch() + cameraOffset)*TO_RAD;
+    float p = (FIXED_PITCH + cameraOffset)*TO_RAD;
     pitch <<
         1,       0,      0, 0,
         0,  cos(p),-sin(p), 0,

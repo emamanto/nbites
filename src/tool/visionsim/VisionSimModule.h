@@ -12,49 +12,37 @@
 
 #include <QObject>
 #include "RoboGrams.h"
-#include "World.h"
 #include "Image.h"
-#include "VisionSimGUI.h"
+#include "Controls.h"
+#include "WorldView.h"
+#include "ImageView.h"
+//#include "VisionSimGUI.h"
 
 namespace tool{
-
-// Forward declaration for friending
-class Tool;
-
 namespace visionsim{
 
 class VisionSimModule :  public QObject,
                          public portals::Module
 {
     Q_OBJECT;
-    // The tool needs to be able to access the gui part
-    friend class ::tool::Tool;
 
 public:
     VisionSimModule();
-    virtual ~VisionSimModule() {}
 
 public slots:
-    // Allow the GUI to update the world model
-    void updateRobot(float x, float y, float h);
-    void updateHead(float yaw, float pitch);
-    void updateBall(float x, float y);
-
-signals:
-    // Notify the GUI when the model has changed
-    void modelChanged();
+    void runSubModules();
 
 protected:
-    void updateImages();
-
     // The required module method
     virtual void run_();
 
-    // Keeps track of the model (world and images) and GUI
-    World world;
+    portals::RoboGram subdiagram;
+    Controls controls;
+    WorldView worldView;
     Image topImage;
     Image bottomImage;
-    VisionSimGUI gui;
+    ImageView topImageView;
+    ImageView bottomImageView;
 };
 
 }

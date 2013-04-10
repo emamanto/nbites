@@ -15,8 +15,11 @@
 #pragma once
 
 #include "VisionObjects.h"
-#include "World.h"
 #include "ImageConstants.h"
+#include "RoboGrams.h"
+#include "WorldModel.pb.h"
+#include "VisionField.pb.h"
+#include "BallModel.pb.h"
 #include <Eigen/Dense>
 #include <vector>
 
@@ -31,17 +34,20 @@ typedef std::vector<VisionCorner> CornerVector;
 typedef std::vector<VisionLine> LineVector;
 typedef std::vector<VisionPost> PostVector;
 
-class Image {
+class Image : public portals::Module
+{
 public:
-    Image(World& state, Camera which);
+    Image(Camera which);
     ~Image(){};
 
-    // The view is given access to this class because it essentially needs
-    // to know everything about ann image to render it properly
-    friend class ImageView;
+    portals::InPortal<messages::WorldModel> worldIn;
+    portals::OutPortal<messages::VisionBall> ballOut;
+    // Set this up!
+    //portals::OutPortal<messages::VisionField> fieldOut;
 
+protected:
     // Update all of the vision information
-    void update();
+    virtual void run_();
 
 private:
     // Things that appear in the image
@@ -58,6 +64,7 @@ private:
     void updatePosts();
 
     // Helper methods
+    Eigen::Vector3f getAbsoluteBallCoords();
     CameraPoint fieldToCameraCoords(int x, int y, int z);
     CameraPoint fieldToCameraCoords(Eigen::Vector3f worldPoint);
     ImagePoint cameraToImageCoords(float x, float y, float z);
@@ -69,7 +76,6 @@ private:
     VisionCorner* getCorner(FieldCorner type);
 
     // Things we need to know for the transformations
-    World& world;
     Camera type;
     // The following are set based on the camera type
     float cameraOffset;

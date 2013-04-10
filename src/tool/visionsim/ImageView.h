@@ -16,27 +16,33 @@
 
 #include "ImageConstants.h"
 #include "Image.h"
+#include "RoboGrams.h"
+#include "BallModel.pb.h"
+#include "VisionField.pb.h"
 
 namespace tool{
 namespace visionsim{
 
-class ImageView : public QWidget {
+class ImageView : public QWidget,
+                  public portals::Module
+{
     Q_OBJECT;
 
 public:
-    ImageView(Image& i, QWidget* parent = 0);
+    ImageView(QWidget* parent = 0);
     ~ImageView() {};
+
+    portals::InPortal<messages::VisionBall> ballIn;
+    // Set this up!
+    //portals::InPortal<messages::VisionField> fieldIn;
+protected:
+    virtual void run_();
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-protected:
     // Handles all of the painting
     void paintEvent(QPaintEvent* event);
-
-private:
-    // The image that this instance refers to in order to draw
-    Image& image;
 };
 
 }

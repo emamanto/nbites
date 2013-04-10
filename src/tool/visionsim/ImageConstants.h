@@ -21,6 +21,7 @@ static const int IMAGE_HEIGHT           = 480;
 // Based on a Nao standing in a typical position
 static const float BOTTOM_CAMERA_HEIGHT = 44.f;
 static const float TOP_CAMERA_HEIGHT    = 48.5f;
+static const float FIXED_PITCH          = 17.0f;
 
 // How far each camera is angled away from vertical
 static const int TOP_CAMERA_OFFSET      = 1.2f + 90.f;
