@@ -25,6 +25,7 @@ configure_file(
   "${PROJECT_BINARY_DIR}/PathConfig.h"
 )
 include_directories( ${PROJECT_BINARY_DIR} )
+include_directories( ${CMAKE_SOURCE_DIR} )
 
 # Dependencies
 find_package( Qt4 REQUIRED )
@@ -46,7 +47,8 @@ include_directories( ${SHARE_DIR}/portals )
 
 # Compile messages into messages folder
 add_subdirectory( ${SHARE_DIR}/messages ${CMAKE_CURRENT_BINARY_DIR}/messages )
-include_directories(  ${CMAKE_CURRENT_BINARY_DIR}/messages )
+include_directories( ${CMAKE_CURRENT_BINARY_DIR}/messages )
+include_directories( ${SHARE_DIR}/messages )
 
 add_subdirectory( ${MAN_DIR}/vssp ${CMAKE_CURRENT_BINARY_DIR}/vssp)
 
@@ -58,6 +60,8 @@ endif()
 # Actual subdirectories!
 add_subdirectory( unlog )
 add_subdirectory( visionsim )
+add_subdirectory( logview )
+add_subdirectory( image )
 
 # Sources
 set( tool_srcs main.cpp
@@ -87,5 +91,7 @@ target_link_libraries(
   unlog
   visionsim
   vssp
+  logview
+  image
   ${QT_LIBRARIES}
   )

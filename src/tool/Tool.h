@@ -10,11 +10,13 @@
 #include <QToolBar>
 #include <QScrollArea>
 #include <QResizeEvent>
+#include <QPixmap>
+#include <QImage>
+#include <QLabel>
 
 #include "ToolDiagram.h"
 #include "DataSelector.h"
-#include "visionsim/VisionSimModule.h"
-#include "vssp/MemoryModule.h"
+#include "logview/LogViewer.h"
 
 namespace tool {
 
@@ -36,11 +38,9 @@ protected:
 
     // Modules in this diagram will be run when data is updated
     ToolDiagram diagram;
-    DataSelector selector;
 
-    // Modules
-    visionsim::VisionSimModule vissim;
-    MemoryModule vismemory;
+    DataSelector selector;
+    logview::LogViewer logView;
 
     // GUI stuff
     QTabWidget* toolTabs;

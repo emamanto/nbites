@@ -2,7 +2,7 @@
 
 #include "RoboGrams.h"
 #include "Scenes.h"
-#include "VisionBall.pb.h"
+#include "BallModel.pb.h"
 
 class MemoryModule : public portals::Module
 {
