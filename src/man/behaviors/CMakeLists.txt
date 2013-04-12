@@ -26,12 +26,10 @@ set( BEHAVIORS_SRCS BehaviorsModule
 set( BEHAVIORS_PYTHON_SRCS __init__.py
                         Brain.py
                         GameController.py
-                        GameStates.py
                         FallController.py
 			Stability.py
                         FallStates.py
                         Leds.py
-			Ball.py
 			MyInfo.py
 			MotionConstants.py
 			StiffnessModes.py
@@ -42,7 +40,7 @@ set( BEHAVIORS_PYTHON_SRCS __init__.py
 set ( BEHAVIORS_SWITCH ${CMAKE_CURRENT_BINARY_DIR}/players/Switch.py)
 
 # Python subdirectories
-set( BEHAVIORS_PYTHON_SUBDIRS headTracking
+set( BEHAVIORS_PYTHON_SUBDIRS headTracker
      			   kickDecider
                            navigator
                            playbook
@@ -81,10 +79,9 @@ install(
 
 target_link_libraries(
   behaviors
-  common
+  support
   portals
   messages
   ${PYTHON_LIBRARY}
   ${Boost_PYTHON_LIBRARY}
   )
-
