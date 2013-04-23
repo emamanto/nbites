@@ -15,8 +15,6 @@ configure_file(
 # CPP sources
 set( BEHAVIORS_SRCS BehaviorsModule
   PyObjects
-  GoalieSystem
-  PyGoalie
   CombinationObjects
   PyConstants
   PyInterface
@@ -28,10 +26,7 @@ set( BEHAVIORS_PYTHON_SRCS __init__.py
                         GameController.py
                         FallController.py
 			Stability.py
-                        FallStates.py
                         Leds.py
-			MyInfo.py
-			MotionConstants.py
 			StiffnessModes.py
 			SweetMoves.py
                         )

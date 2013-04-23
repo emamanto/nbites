@@ -17,6 +17,10 @@
 #include "ToolDiagram.h"
 #include "DataSelector.h"
 #include "logview/LogViewer.h"
+#include "colorcreator/ColorTableCreator.h"
+#include "viewer/FieldViewer.h"
+
+#include "ParticleSwarm.pb.h"
 
 namespace tool {
 
@@ -41,6 +45,8 @@ protected:
 
     DataSelector selector;
     logview::LogViewer logView;
+    color::ColorTableCreator tableCreator;
+    viewer::FieldViewer fieldView;
 
     // GUI stuff
     QTabWidget* toolTabs;

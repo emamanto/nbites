@@ -20,6 +20,8 @@
 #include "VisionField.pb.h"
 #include "VisionRobot.pb.h"
 #include "ButtonState.pb.h"
+#include "FallStatus.pb.h"
+#include "RobotLocation.pb.h"
 
 /**
  *
@@ -88,12 +90,14 @@ public:
     portals::InPortal<messages::FootBumperState> footBumperStateIn;
     portals::InPortal<messages::FilteredBall> filteredBallIn;
     portals::InPortal<messages::JointAngles> jointsIn;
+    portals::InPortal<messages::FallStatus> fallStatusIn;
 
     portals::OutPortal<messages::LedCommand> ledCommandOut;
     portals::OutPortal<messages::MotionRequest> motionRequestOut;
     portals::OutPortal<messages::MotionCommand> bodyMotionCommandOut;
     portals::OutPortal<messages::HeadMotionCommand> headMotionCommandOut;
     portals::OutPortal<messages::RobotLocation> resetLocOut;
+    portals::OutPortal<messages::WorldModel> myWorldModelOut;
 
 private:
     portals::Message<messages::LedCommand> ledCommand;
@@ -101,6 +105,7 @@ private:
     portals::Message<messages::HeadMotionCommand> headMotionCommand;
     portals::Message<messages::MotionRequest> motionRequest;
     portals::Message<messages::RobotLocation> resetLocRequest;
+    portals::Message<messages::WorldModel> myWorldModel;
 };
 
 }

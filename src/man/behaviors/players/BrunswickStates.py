@@ -15,32 +15,13 @@ def gameInitial(player):
     """
     if player.firstFrame():
         player.inKickingState = False
+        player.gameState = player.currentState
+        player.brain.fallController.enabled = False
         player.stand()
         player.zeroHeads()
         #Reset localization to proper starting position by player number.
         #Locations are defined in the wiki.
-        """HACK HACK until localization is implemented in messages we cant do this.
-        if player.brain.playerNumber == 1:
-            player.brain.resetLocTo(nogginConstants.BLUE_GOALBOX_RIGHT_X,
-                                        nogginConstants.FIELD_WHITE_BOTTOM_SIDELINE_Y,
-                                        nogginConstants.HEADING_UP,
-                                        _localization.LocNormalParams(15.0, 15.0, 1.0))
-        elif player.brain.playerNumber == 2:
-            player.brain.resetLocTo(nogginConstants.LANDMARK_BLUE_GOAL_CROSS_X,
-                                        nogginConstants.FIELD_WHITE_BOTTOM_SIDELINE_Y,
-                                        nogginConstants.HEADING_UP,
-                                        _localization.LocNormalParams(15.0, 15.0, 1.0))
-        elif player.brain.playerNumber == 3:
-            player.brain.resetLocTo(nogginConstants.LANDMARK_BLUE_GOAL_CROSS_X,
-                                        nogginConstants.FIELD_WHITE_TOP_SIDELINE_Y,
-                                        nogginConstants.HEADING_DOWN,
-                                        _localization.LocNormalParams(15.0, 15.0, 1.0))
-        elif player.brain.playerNumber == 4:
-            player.brain.resetLocTo(nogginConstants.BLUE_GOALBOX_RIGHT_X,
-                                        nogginConstants.FIELD_WHITE_TOP_SIDELINE_Y,
-                                        nogginConstants.HEADING_DOWN,
-                                        _localization.LocNormalParams(15.0, 15.0, 1.0))
-                                        END HACK"""
+        player.brain.resetInitialLocalization()
     return player.stay()
 
 def gameReady(player):
@@ -49,18 +30,18 @@ def gameReady(player):
     """
     if player.firstFrame():
         player.inKickingState = False
+        player.brain.fallController.enabled = True
+        player.gameState = player.currentState
         player.brain.nav.stand()
         player.brain.tracker.repeatWidePan()
 
     # Reset localization to proper starting position by player number.
     # Locations are defined in the wiki.
-    """ HACK HACK until loc is in messages we can't do this.
         if player.lastDiffState == 'gameInitial':
             player.brain.resetInitialLocalization()
 
         if player.lastDiffState == 'gamePenalized':
-            player.brain.resetLocalizationFromPenalty()
-            END HACK"""
+            return player.goNow('afterPenalty')
 
     # Wait until the sensors are calibrated before moving.
     if not player.brain.motion.calibrated:
@@ -74,19 +55,19 @@ def gameSet(player):
     """
     if player.firstFrame():
         player.inKickingState = False
+        player.brain.fallController.enabled = False
+        player.gameState = player.currentState
         player.brain.nav.stand()
         player.brain.tracker.trackBall()
 
-        if (player.brain.playerNumber == 4 and
-            player.brain.gameController.ownKickOff):
-            print "Setting Kickoff to True"
-            player.shouldKickOff = True
-        else:
-            player.shouldKickOff = False
+        if player.lastDiffState == 'gamePenalized':
+            player.brain.resetSetLocalization()
 
-        #HACK
-        #if player.lastDiffState == 'gamePenalized':
-        #    player.brain.resetSetLocalization()
+    if (player.play.isChaser() and
+        player.brain.gameController.ownKickOff):
+        player.shouldKickOff = True
+    else:
+        player.shouldKickOff = False
 
     # Wait until the sensors are calibrated before moving.
     if not player.brain.motion.calibrated:
@@ -96,23 +77,22 @@ def gameSet(player):
 
 def gamePlaying(player):
     if player.firstFrame():
+        player.inKickingState = False
+        player.brain.fallController.enabled = True
+        player.gameState = player.currentState
         player.brain.nav.stand()
         player.brain.tracker.trackBall()
-        player.inKickingState = False
         if player.lastDiffState == 'gamePenalized':
             print 'Player coming out of penalized state after ' + str(player.lastStateTime) + ' seconds in last state'
-            #HACK
-            #if player.lastStateTime > 5:
-            #    player.brain.resetLocalizationFromPenalty()
-        #HACK
-        #if player.lastDiffState == 'gameSet':
-        #    player.brain.resetSetLocalization()
+            if player.lastStateTime > 5:
+                return player.goNow('afterPenalty')
 
     # Wait until the sensors are calibrated before moving.
     if not player.brain.motion.calibrated:
         return player.stay()
 
-    if player.lastDiffState == 'gamePenalized' and  player.brain.play.isChaser():
+    if (player.lastDiffState == 'gamePenalized'
+        and  player.brain.play.isChaser()):
         return player.goNow('afterPenalty')
 
     roleState = player.getRoleState()
@@ -120,13 +100,11 @@ def gamePlaying(player):
 
 
 def gamePenalized(player):
-    if player.lastDiffState == '':
-        # Just started up! Need to calibrate sensors
-        player.brain.nav.stand()
-
     if player.firstFrame():
         player.inKickingState = False
-        player.stopWalking()
+        player.brain.fallController.enabled = False
+        player.gameState = player.currentState
+        player.stand()
         player.penalizeHeads()
 
     return player.stay()
@@ -145,6 +123,8 @@ def gameFinished(player):
     """
     if player.firstFrame():
         player.inKickingState = False
+        player.brain.fallController.enabled = False
+        player.gameState = player.currentState
         player.stopWalking()
         player.zeroHeads()
         player.executeMove(SweetMoves.SIT_POS)
@@ -160,7 +140,9 @@ def gameFinished(player):
 def penaltyShotsGameSet(player):
     if player.firstFrame():
         player.stand()
+        player.gameState = player.currentState
         player.inKickingState = False
+        player.brain.fallController.enabled = False
 
     # Wait until the sensors are calibrated before moving.
     if not player.brain.motion.calibrated:
@@ -180,6 +162,8 @@ def penaltyShotsGamePlaying(player):
 
     if player.firstFrame():
         player.stand()
+        player.gameState = player.currentState
+        player.brain.fallController.enabled = True
         player.inKickingState = False
         player.shouldKickOff = False
         player.penaltyKicking = True

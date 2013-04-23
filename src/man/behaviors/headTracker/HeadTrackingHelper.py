@@ -1,5 +1,4 @@
 from . import TrackingConstants as constants
-from .. import MotionConstants
 from ..util import MyMath as MyMath
 from .. import StiffnessModes
 from math import fabs, degrees
@@ -168,6 +167,40 @@ class HeadTrackingHelper(object):
         command.pos_command.max_speed_pitch = maxSpeed
 
         command.timestamp = int(self.tracker.brain.time * 1000)
+
+    def trackStationaryObject(self):
+        # Note: safe to call every frame.
+        target = self.tracker.target
+        changeX, changeY = 0.0, 0.0
+
+        # If we cannot see the target, abort.
+        if (not target # target is null
+            or (target.frames_off > 0)):
+            return
+
+        # Find the target's angular distance from yaw center.
+        changeX = target.angle_x_deg
+        curYaw  = degrees(self.tracker.brain.interface.joints.head_yaw)
+
+        #WOW this is ugly
+        maxChange = 13.0
+        maxSpeed = 2.0
+
+        # Warning- no gain is applied currently!
+        safeChangeX = MyMath.clip(changeX, -maxChange, maxChange)
+        newYaw = curYaw + safeChangeX
+
+        # Set motion message fields
+        command = self.tracker.brain.interface.headMotionCommand
+        command.type = command.CommandType.POS_HEAD_COMMAND
+
+        command.pos_command.head_yaw = newYaw
+        command.pos_command.head_pitch = 20.0 # TODO: MAKE A CONSTANT FOR THIS
+        command.pos_command.max_speed_yaw = maxSpeed
+        command.pos_command.max_speed_pitch = maxSpeed
+
+        command.timestamp = int(self.tracker.brain.time * 1000)
+
 
     # Unsafe to call... TODO: CoordHeadCommands for messages.
     def lookAtTarget(self, target):

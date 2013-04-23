@@ -8,7 +8,6 @@
 
 #include "BehaviorsModule.h"
 #include "PyObjects.h"
-#include "PyGoalie.h"
 
 using namespace boost::python;
 
@@ -21,9 +20,9 @@ extern "C" void initRobotLocation_proto();
 extern "C" void initBallModel_proto();
 extern "C" void initPMotion_proto();
 extern "C" void initMotionStatus_proto();
-extern "C" void initRobotLocation_proto();
 extern "C" void initSonarState_proto();
 extern "C" void initButtonState_proto();
+extern "C" void initFallStatus_proto();
 extern "C" void initinterface();
 
 namespace man {
@@ -42,7 +41,8 @@ BehaviorsModule::BehaviorsModule(int teamNum, int playerNum)
       motionRequestOut(base()),
       bodyMotionCommandOut(base()),
       headMotionCommandOut(base()),
-      resetLocOut(base())
+      resetLocOut(base()),
+      myWorldModelOut(base())
 {
     std::cout << "BehaviorsModule::initializing" << std::endl;
 
@@ -83,7 +83,6 @@ void BehaviorsModule::initializePython()
 
     c_init_noggin_constants();
     c_init_objects();
-    c_init_goalie();
 
     try{
         initLedCommand_proto();
@@ -97,7 +96,7 @@ void BehaviorsModule::initializePython()
         initMotionStatus_proto();
         initSonarState_proto();
         initButtonState_proto();
-        initRobotLocation_proto();
+        initFallStatus_proto();
         // Init the interface as well
         initinterface();
     } catch (error_already_set) {
@@ -253,6 +252,9 @@ void BehaviorsModule::prepareMessages()
     jointsIn.latch();
     pyInterface.setJoints_ptr(&jointsIn.message());
 
+    fallStatusIn.latch();
+    pyInterface.setFallStatus_ptr(&fallStatusIn.message());
+
     // Prepare potential out messages for python
     ledCommand = portals::Message<messages::LedCommand>(0);
     pyInterface.setLedCommand_ptr(ledCommand.get());
@@ -271,6 +273,9 @@ void BehaviorsModule::prepareMessages()
 
     resetLocRequest = portals::Message<messages::RobotLocation>(0);
     pyInterface.setResetLocRequest_ptr(resetLocRequest.get());
+
+    myWorldModel = portals::Message<messages::WorldModel>(0);
+    pyInterface.setMyWorldModel_ptr(myWorldModel.get());
 }
 
 void BehaviorsModule::sendMessages()
@@ -291,6 +296,10 @@ void BehaviorsModule::sendMessages()
     if (motionRequest.get()->timestamp() != 0)
     {
         motionRequestOut.setMessage(motionRequest);
+    }
+    if (myWorldModel.get()->timestamp() != 0)
+    {
+        myWorldModelOut.setMessage(myWorldModel);
     }
 }
 

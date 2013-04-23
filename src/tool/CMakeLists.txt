@@ -57,11 +57,21 @@ if( BUILD_PROTOBUF )
 add_dependencies(messages protobuf_libs)
 endif()
 
+# Man modules that we need to use
+include_directories( ${MAN_DIR}/support )
+add_subdirectory( ${MAN_DIR}/support ${CMAKE_CURRENT_BINARY_DIR}/man/support)
+
+add_subdirectory( ${MAN_DIR}/image ${CMAKE_CURRENT_BINARY_DIR}/man/image)
+
 # Actual subdirectories!
 add_subdirectory( unlog )
 add_subdirectory( visionsim )
 add_subdirectory( logview )
 add_subdirectory( image )
+add_subdirectory( colorcreator )
+add_subdirectory( viewer )
+add_subdirectory( common )
+
 
 # Sources
 set( tool_srcs main.cpp
@@ -92,6 +102,11 @@ target_link_libraries(
   visionsim
   vssp
   logview
-  image
+  image_display
+  image # man image
+  image_display
+  viewer
+  tool_common
+  colorcreator
   ${QT_LIBRARIES}
   )
