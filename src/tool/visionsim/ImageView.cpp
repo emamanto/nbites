@@ -16,7 +16,6 @@ ImageView::ImageView(QWidget* parent) :
 
 void ImageView::run_()
 {
-    ballIn.latch();
     repaint();
 }
 
@@ -40,6 +39,7 @@ QSize ImageView::sizeHint() const
  */
 void ImageView::paintEvent(QPaintEvent* event)
 {
+    ballIn.latch();
     QPainter painter(this);
 
     // Gray background

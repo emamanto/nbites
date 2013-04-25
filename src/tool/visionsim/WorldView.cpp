@@ -41,8 +41,7 @@ WorldView::WorldView(QWidget* parent) : QWidget(parent)
 
 void WorldView::run_()
 {
-    worldIn.latch();
-    repaint();
+    update();
 }
 
 // The following two methods keep Qt from resizing this widget
@@ -59,6 +58,8 @@ QSize WorldView::sizeHint() const
 // Handles all of the drawing when an update is requested
 void WorldView::paintEvent(QPaintEvent *event)
 {
+    worldIn.latch();
+
     QPainter painter(this);
 
     // Green background
@@ -147,6 +148,8 @@ void WorldView::paintEvent(QPaintEvent *event)
     int ballY = worldIn.message().my_y() +
         (worldIn.message().ball_dist() *
          sin(worldIn.message().ball_bearing()*TO_RAD));
+
+    std::cout << "VIEW     Ball X " << ballX << " Y " << ballY << std::endl;
 
     painter.drawEllipse(ballX-BALL_RAD, ballY-BALL_RAD,
                         2*BALL_RAD, 2*BALL_RAD);

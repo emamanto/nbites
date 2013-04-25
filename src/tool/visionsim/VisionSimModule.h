@@ -10,7 +10,9 @@
 
 #pragma once
 
-#include <QObject>
+#include <QWidget>
+#include <QTabWidget>
+#include <QHBoxLayout>
 #include "RoboGrams.h"
 #include "Image.h"
 #include "Controls.h"
@@ -21,7 +23,7 @@
 namespace tool{
 namespace visionsim{
 
-class VisionSimModule :  public QObject,
+class VisionSimModule :  public QWidget,
                          public portals::Module
 {
     Q_OBJECT;
@@ -36,13 +38,21 @@ protected:
     // The required module method
     virtual void run_();
 
+    // Backend
     portals::RoboGram subdiagram;
-    Controls controls;
-    WorldView worldView;
     Image topImage;
     Image bottomImage;
+
+    // GUI
+    Controls controls;
+    WorldView worldView;
     ImageView topImageView;
     ImageView bottomImageView;
+
+    QTabWidget imageTabs;
+    QWidget controller;
+    QHBoxLayout mainLayout;
+    QVBoxLayout sideLayout;
 };
 
 }

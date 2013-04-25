@@ -2,6 +2,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <math.h>
+#include <iostream>
 #include "WorldConstants.h"
 #include "ImageConstants.h"
 
@@ -96,10 +97,15 @@ void Controls::run_()
     msg.get()->set_my_y(robotY.value());
     msg.get()->set_my_h(robotH.value());
     msg.get()->set_head_yaw(headYaw.value());
-    float x_dist = robotX.value() - ballX.value();
-    float y_dist = robotY.value() - ballY.value();
+    float x_dist = ballX.value() - robotX.value();
+    float y_dist = ballY.value() - robotY.value();
     msg.get()->set_ball_dist(sqrt(pow(x_dist, 2) + pow(y_dist, 2)));
-    msg.get()->set_ball_bearing(atan2(y_dist, x_dist));
+    msg.get()->set_ball_bearing(atan2(y_dist, x_dist) - robotH.value());
+
+    std::cout << "CONTROLS Ball X " << ballX.value() << " Y " << ballY.value()
+              << std::endl;
+
+    worldOut.setMessage(msg);
 }
 
 void Controls::signalToRun()

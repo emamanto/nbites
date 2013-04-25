@@ -17,6 +17,7 @@ Tool::Tool(const char* title) :
     logView(this),
     tableCreator(this),
     fieldView(this),
+    visionSim(),
     toolTabs(new QTabWidget),
     toolbar(new QToolBar),
     nextButton(new QPushButton(tr(">"))),
@@ -53,6 +54,7 @@ Tool::Tool(const char* title) :
     toolTabs->addTab(&logView, tr("Log View"));
     toolTabs->addTab(&tableCreator, tr("Color Creator"));
     toolTabs->addTab(&fieldView, tr("FieldView"));
+    toolTabs->addTab(&visionSim, tr("Vision Simulator"));
 
     this->setCentralWidget(toolTabs);
     this->addToolBar(toolbar);

@@ -6,7 +6,7 @@ using namespace portals;
 namespace tool{
 namespace visionsim{
 
-VisionSimModule::VisionSimModule() : QObject(),
+VisionSimModule::VisionSimModule() : QWidget(),
                                      Module(),
                                      controls(),
                                      worldView(),
@@ -15,6 +15,7 @@ VisionSimModule::VisionSimModule() : QObject(),
                                      topImageView(),
                                      bottomImageView()
 {
+    //Backend
     worldView.worldIn.wireTo(&controls.worldOut);
     topImage.worldIn.wireTo(&controls.worldOut);
     bottomImage.worldIn.wireTo(&controls.worldOut);
@@ -28,7 +29,19 @@ VisionSimModule::VisionSimModule() : QObject(),
     subdiagram.addModule(topImageView);
     subdiagram.addModule(bottomImageView);
 
-    connect(&controls, SIGNAL(dataChanged()), this, SLOT(runSubModules));
+    // GUI
+    imageTabs.addTab(&topImageView, "TOP");
+    imageTabs.addTab(&bottomImageView, "BOTTOM");
+    mainLayout.addWidget(&imageTabs);
+
+    sideLayout.addWidget(&controls);
+    sideLayout.addWidget(&worldView);
+    controller.setLayout(&sideLayout);
+    mainLayout.addWidget(&controller);
+
+    setLayout(&mainLayout);
+
+    connect(&controls, SIGNAL(dataChanged()), this, SLOT(runSubModules()));
 }
 
 void VisionSimModule::runSubModules()
