@@ -64,11 +64,11 @@ RIGHT_SHORT_STRAIGHT_KICK = Kick("R_Short_Straight",
                                  move=SweetMoves.RIGHT_SHORT_STRAIGHT_KICK)
 
 LEFT_BIG_KICK =  Kick("L_Big_Straight", 
-                      x = 15.0, y =  4.5,
+                      x = 14.8, y =  4.5,
                       dist = 500,
                       move=SweetMoves.LEFT_BIG_KICK)
 RIGHT_BIG_KICK = Kick("R_Big_Straight", 
-                      x = 15.0, y = -4.5,
+                      x = 14.8, y = -4.5,
                       dist = 500,
                       move=SweetMoves.RIGHT_BIG_KICK)
 
@@ -101,8 +101,8 @@ M_RIGHT_STRAIGHT =  Kick("M_Right_Straight", x = 14, y = -3.6, dist = 70)
 M_LEFT_CHIP_SHOT =  Kick("M_Left_Chip_Shot", x = 12.3, y = -.3, h = 45, dist = 70)
 M_RIGHT_CHIP_SHOT =  Kick("M_Right_Chip_Shot", x = 12.3, y = .3, h = -45, dist = 70)
 
-M_LEFT_SIDE = Kick("M_Left_Side", x = 13.4, y = -2.76, h = 90, dist = 70)
-M_RIGHT_SIDE = Kick("M_Right_Side", x = 13.4, y = 2.76, h = -90, dist = 70)
+M_LEFT_SIDE = Kick("M_Left_Side", x = 13, y = -2.8, h = 90, dist = 70)
+M_RIGHT_SIDE = Kick("M_Right_Side", x = 13, y = 2.8, h = -90, dist = 70)
 
 # Not used 04-19-13
 LEFT_SHORT_SIDE_KICK =  Kick("L_Short_Side", x = 15.5, y = -.5,

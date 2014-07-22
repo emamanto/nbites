@@ -33,11 +33,17 @@ def approachBall(player):
         elif player.penaltyKicking:
             return player.goNow('prepareForPenaltyKick')
         else:
-            player.brain.nav.chaseBall(Navigator.QUICK_SPEED, fast = True)
+            player.brain.nav.chaseBall(Navigator.FULL_SPEED, fast = True)
 
     if (transitions.shouldPrepareForKick(player) or
         player.brain.nav.isAtPosition()):
         return player.goNow('positionAndKickBall')
+    
+    elif transitions.shouldDecelerate(player):
+        player.brain.nav.chaseBallDeceleratingSpeed()
+    else:
+        player.brain.nav.chaseBall(Navigator.FULL_SPEED, fast = True)
+
 
 @defaultState('prepareForKick')
 @superState('gameControllerResponder')
@@ -202,7 +208,7 @@ def positionForKick(player):
     if player.firstFrame():
         player.brain.tracker.lookStraightThenTrack()
         player.brain.nav.destinationWalkTo(positionForKick.kickPose,
-                                           Navigator.GRADUAL_SPEED)
+                                           Navigator.BRISK_SPEED)
         positionForKick.slowDown = False
     elif player.brain.ball.vis.on: # don't update if we don't see the ball
         # slows down the walk when very close to the ball to stabalize motion kicking and to not walk over the ball
@@ -216,7 +222,7 @@ def positionForKick(player):
                 player.brain.ball.distance >= constants.SLOW_DOWN_TO_BALL_DIST):
                 positionForKick.slowDown = False
                 player.brain.nav.destinationWalkTo(positionForKick.kickPose,
-                                           Navigator.GRADUAL_SPEED)
+                                           Navigator.BRISK_SPEED)
             else:
                 player.brain.nav.updateDestinationWalkDest(positionForKick.kickPose)
         else:
